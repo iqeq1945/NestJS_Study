@@ -4,13 +4,23 @@ import {
   SubscribeMessage,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+@WebSocketGateway({ namespace: 'qwer' })
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
-  server: Server;
+  public server: Server;
+
+  constructor() {
+    let a = 1;
+    console.log(a++, 'dddddddddddddddddddddddddddddddddddd');
+  }
 
   connectedClients: { [socketId: string]: boolean } = {};
   clientNickname: { [socketId: string]: string } = {};
@@ -25,6 +35,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.connectedClients[client.id] = true;
   }
 
+  afterInit() {
+    console.log('socket is open!');
+  }
   handleDisconnect(client: Socket): void {
     delete this.connectedClients[client.id];
 
@@ -132,10 +145,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   @SubscribeMessage('chatMessage')
   handleChatMessage(
-    client: Socket,
-    data: { message: string; room: string },
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { message: string; room: string },
   ): void {
     // 클라이언트가 보낸 채팅 메시지를 해당 방으로 전달
+    console.log(client.handshake.headers, '------------------');
     this.server.to(data.room).emit('chatMessage', {
       userId: this.clientNickname[client.id],
       message: data.message,

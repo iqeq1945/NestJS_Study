@@ -10,6 +10,7 @@ import { UserService } from './user/user.service';
 import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
 import { ChatGateway } from './chat/chat.gateway';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ChatGateway } from './chat/chat.gateway';
     }),
     AuthModule,
     UserModule,
+    ChatModule,
   ],
   controllers: [AppController, AuthController, UserController],
   providers: [AppService, AuthService, PrismaService, UserService, ChatGateway],
